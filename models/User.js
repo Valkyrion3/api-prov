@@ -42,7 +42,7 @@ const User = sequelize.define('User', {
   createdAt: 'created_at',
   updatedAt: 'updated_at',
   defaultScope: {
-    attributes: { exclude: ['password', 'remember_token'] }
+    attributes: { exclude: ['remember_token'] }
   }
 });
 

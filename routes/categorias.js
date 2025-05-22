@@ -3,8 +3,8 @@ const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
 const categoriasController = require('../controllers/categoriasController');
 
-router.get('/', categoriasController.getCategorias);
+router.get('/', authMiddleware, categoriasController.getCategorias);
 router.post('/', authMiddleware, categoriasController.createCategoria);
-router.put('/:idCategoria', authMiddleware, categoriasController.updateCategoria);
+router.put('/:id', authMiddleware, categoriasController.updateCategoria);
 
 module.exports = router;
