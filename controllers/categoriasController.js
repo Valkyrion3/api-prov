@@ -8,7 +8,7 @@ exports.getCategorias = async (req, res) => {
     const { count, rows } = await Categoria.findAndCountAll({
       offset,
       limit: parseInt(limit),
-      order: [['idCategoria', 'ASC']]
+      order: [['nombre', 'ASC']]
     });
 
     res.json({
@@ -20,7 +20,7 @@ exports.getCategorias = async (req, res) => {
         currentPage: parseInt(page),
         perPage: parseInt(limit)
       },
-      message: 'Listado de categorías obtenido correctamente'
+      message: 'Categorías obtenidas correctamente'
     });
   } catch (error) {
     res.status(500).json({
@@ -31,17 +31,52 @@ exports.getCategorias = async (req, res) => {
   }
 };
 
+exports.getCategoriaById = async (req, res) => {
+  try {
+    const { idCategoria } = req.params;
+    const categoria = await Categoria.findByPk(idCategoria);
+
+    if (!categoria) {
+      return res.status(404).json({
+        success: false,
+        message: 'Categoría no encontrada'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: categoria,
+      message: 'Categoría obtenida correctamente'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener categoría',
+      error: error.message
+    });
+  }
+};
+
 exports.createCategoria = async (req, res) => {
   try {
     const { nombre, estado } = req.body;
+
+    // Validación básica
+    if (!nombre) {
+      return res.status(400).json({
+        success: false,
+        message: 'El nombre es requerido'
+      });
+    }
+
     const categoria = await Categoria.create({
       nombre: nombre.toUpperCase(),
-      estado
+      estado: estado || true
     });
 
     res.status(201).json({
-      data: categoria,
       success: true,
+      data: categoria,
       message: 'Categoría creada correctamente'
     });
   } catch (error) {
@@ -55,27 +90,69 @@ exports.createCategoria = async (req, res) => {
 
 exports.updateCategoria = async (req, res) => {
   try {
-    const { idCategoria } = req.params;
-    const { nombre, estado } = req.body;
     
+    const idCategoria = req.params.id;
+    const { nombre, estado } = req.body;
+    console.log(idCategoria);
     const categoria = await Categoria.findByPk(idCategoria);
+    console.log(categoria);
     if (!categoria) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
+      return res.status(404).json({
+        success: false,
+        message: 'Categoría no encontrada'
+      });
     }
 
-    categoria.nombre = nombre.toUpperCase();
-    categoria.estado = estado;
+    categoria.nombre = nombre ? nombre.toUpperCase() : categoria.nombre;
+    categoria.estado = estado !== undefined ? estado : categoria.estado;
+
     await categoria.save();
 
     res.json({
       success: true,
-      message: 'Categoría actualizada correctamente',
-      data: categoria
+      data: categoria,
+      message: 'Categoría actualizada correctamente'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Error al actualizar categoría',
+      error: error.message
+    });
+  }
+};
+
+exports.deleteCategoria = async (req, res) => {
+  try {
+    const idCategoria = req.params.id;
+
+    const categoria = await Categoria.findByPk(idCategoria);
+    if (!categoria) {
+      return res.status(404).json({
+        success: false,
+        message: 'Categoría no encontrada'
+      });
+    }
+
+    // Verificar si la categoría tiene piezas asociadas
+    const piezasCount = await categoria.countPiezas();
+    if (piezasCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No se puede eliminar la categoría porque tiene piezas asociadas'
+      });
+    }
+
+    await categoria.destroy();
+
+    res.json({
+      success: true,
+      message: 'Categoría eliminada correctamente'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al eliminar categoría',
       error: error.message
     });
   }
