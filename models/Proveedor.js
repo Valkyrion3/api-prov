@@ -11,7 +11,25 @@ const Proveedor = sequelize.define('Proveedor', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  // Agrega aquí los demás campos de tu modelo
+  direccion: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  telefono: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      isEmail: true
+    }
+  },
+  estado: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  }
 }, {
   tableName: 'proveedor',
   timestamps: false

@@ -1,24 +1,17 @@
 const express = require('express');
-const cors = require('cors');
-
 const app = express();
+const sequelize = require('./config/db'); // tu archivo de conexión a PostgreSQL
+const Proveedor = require('./models/Proveedor'); // tu modelo actualizado
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(require('./middlewares/cors'));
+// Sincroniza y actualiza la tabla automáticamente
+sequelize.sync({ alter: true })
+  .then(() => {
+    console.log('Tabla proveedor actualizada con éxito.');
+  })
+  .catch(err => {
+    console.error('Error al actualizar la tabla proveedor:', err);
+  });
 
-
-// Rutas
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/user', require('./routes/user'));
-app.use('/api/categorias', require('./routes/categorias'));
-app.use('/api/piezas', require('./routes/piezas'));
-app.use('/api/proveedores', require('./routes/proveedores'));
-app.use('/api/suministros', require('./routes/suministros'));
-
-const PORT = process.env.PORT || 3000; // Render define process.env.PORT
-
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
+app.listen(3000, () => {
+  console.log('Servidor escuchando en puerto 3000');
 });

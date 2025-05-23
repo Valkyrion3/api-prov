@@ -66,7 +66,7 @@ exports.createPieza = async (req, res) => {
 
 exports.updatePieza = async (req, res) => {
   try {
-    const idPieza = req.params.id;
+    const { idPieza } = req.params;
     const { nombre, color, precio, idCategoria, medida, stock, estado } = req.body;
 
     const pieza = await Pieza.findByPk(idPieza);
