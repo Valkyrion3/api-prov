@@ -59,7 +59,7 @@ exports.createProveedor = async (req, res) => {
 
 exports.updateProveedor = async (req, res) => {
   try {
-    const idProveedor = req.params.id;
+    const { idProveedor } = req.params;
     const { nombre, direccion, telefono, email, estado } = req.body;
 
     const proveedor = await Proveedor.findByPk(idProveedor);

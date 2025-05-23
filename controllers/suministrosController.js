@@ -38,7 +38,7 @@ exports.getSuministros = async (req, res) => {
 
 exports.createSuministro = async (req, res) => {
   try {
-    const { idProveedor, fecha, monto, estado, piezas } = req.body;
+    const { idProveedor, fecha, monto, estado } = req.body;
     
     const suministro = await Suministro.create({
       idProveedor,
@@ -46,18 +46,6 @@ exports.createSuministro = async (req, res) => {
       monto,
       estado: estado || true
     });
-
-    // Si se enviaron piezas para este suministro
-    if (piezas && Array.isArray(piezas)) {
-      await Promise.all(piezas.map(async pieza => {
-        await SuministroPieza.create({
-          idSuministro: suministro.idSuministro,
-          idPieza: pieza.idPieza,
-          cantidad: pieza.cantidad,
-          precioUnitario: pieza.precioUnitario
-        });
-      }));
-    }
 
     res.status(201).json({
       success: true,
@@ -75,7 +63,8 @@ exports.createSuministro = async (req, res) => {
 
 exports.updateSuministro = async (req, res) => {
   try {
-    const idSuministro = req.params.id;
+    const  idSuministro  = req.params.idSuministro; 
+    
     const { idProveedor, fecha, monto, estado } = req.body;
 
     const suministro = await Suministro.findByPk(idSuministro);
@@ -106,6 +95,7 @@ exports.updateSuministro = async (req, res) => {
     });
   }
 };
+
 
 exports.deleteSuministro = async (req, res) => {
   try {
