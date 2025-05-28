@@ -8,7 +8,7 @@ exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Verificar si el usuario ya existe
+    // Verificar si el usuario ya existe meidante el correo electrónico
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({
@@ -17,11 +17,11 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Crear nuevo usuario (el hash se hace automáticamente en el modelo)
+    // Crear nuevo usuario
     const user = await User.create({
       name,
       email,
-      password // No necesitas hashearlo manualmente, el modelo lo hace
+      password
     });
 
     // Generar token JWT
@@ -31,7 +31,7 @@ exports.register = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
     );
 
-    // Omitir campos sensibles en la respuesta
+    // Omitimos campos sensibles en la respuesta
     const userResponse = {
       id: user.id,
       name: user.name,
@@ -57,15 +57,18 @@ exports.register = async (req, res) => {
   }
 };
 
+// Función para ingresar al sistema
 exports.login = async (req, res) => {
   try {
+    // Obtenemos las credenciales
     const { email, password } = req.body;
-    
+
     const user = await User.findOne({ where: { email } });
-    // Verificar si el usuario existe
+    // Verificamos si el usuario existe
     if (!user) {
       return res.status(401).json({ message: 'Credenciales incorrectas' });
     }
+    // Verificamos la contraseña
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Credenciales incorrectas' });
