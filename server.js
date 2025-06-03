@@ -1,8 +1,18 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 
 const app = express();
-
+//Seguridad HTTP con helmet
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", "'unsafe-inline'", 'https://vercel.app'],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    imgSrc: ["'self'", "data:"],
+    connectSrc: ["'self'", 'https://prov-gsv.vercel.app'],
+  }
+}));
 // Middleware
 app.use(cors());
 app.use(express.json());
