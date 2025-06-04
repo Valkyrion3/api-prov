@@ -1,8 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+const { generarToken } = require('./middlewares/csrfMiddleware');
+const dotenv = require('dotenv');
 
+dotenv.config();
 const app = express();
+
 //Seguridad HTTP con helmet
 app.use(helmet.contentSecurityPolicy({
   directives: {
@@ -16,6 +21,8 @@ app.use(helmet.contentSecurityPolicy({
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
+
 app.use(require('./middlewares/cors'));
 
 
@@ -26,6 +33,11 @@ app.use('/api/categorias', require('./routes/categorias'));
 app.use('/api/piezas', require('./routes/piezas'));
 app.use('/api/proveedores', require('./routes/proveedores'));
 app.use('/api/suministros', require('./routes/suministros'));
+// Ruta para obtener el token CSRF
+app.get('/api/csrf-token', (req, res) => {
+  const csrfToken = generarToken();
+  res.json({ csrfToken });
+});
 
 const PORT = process.env.PORT || 3000; // Puerto del servidor, en render se da la variable de entorno PORT, si no se define, se usa el 3000
 
